@@ -62,7 +62,8 @@ const sassModuleRegex = /\.module\.(scss|sass)$/;
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function(webpackEnv) {
-  const isEnvDevelopment = webpackEnv === 'development';
+  const isEnvDevelopment =
+    webpackEnv === 'development' || webpackEnv === 'demo';
   const isEnvProduction = webpackEnv === 'production';
 
   // Variable used for enabling profiling in Production
@@ -135,6 +136,32 @@ module.exports = function(webpackEnv) {
       );
     }
     return loaders;
+  };
+
+  const ENVS = {
+    LOCAL: 'development',
+    DEMO: 'demo',
+  };
+
+  const ENV_CONFIG = {
+    [ENVS.LOCAL]: {
+      API_HOST: 'http://localhost:8080',
+    },
+    [ENVS.DEMO]: {
+      API_HOST: 'https://gibberish.amazon.com',
+    },
+  };
+
+  const getDefinitions = env => {
+    const config = {
+      API_HOST: JSON.stringify('%API_HOST%'),
+    };
+
+    if (env === ENVS.LOCAL || env === ENVS.DEMO) {
+      config.API_HOST = JSON.stringify(ENV_CONFIG[env].API_HOST);
+    }
+
+    return config;
   };
 
   return {
